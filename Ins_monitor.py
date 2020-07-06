@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+幻变声浪图形模块——乐器模拟widget
+author:杨博远
+"""
+
 from PyQt5 import QtCore, QtMultimedia
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon

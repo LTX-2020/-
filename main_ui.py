@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-HuanBianShenglang ui module
+幻变声浪图形模块
 author:杨博远
 """
 
