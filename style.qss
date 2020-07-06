@@ -1,0 +1,173 @@
+QSlider
+        {
+            background-color: rgb(25, 38, 58);
+            min-height:100px;
+            min-width:15px;
+            max-width:15px;
+            border:15px solid rgb(25, 38, 58);
+        }
+         QSlider::add-page:vertical
+         {     
+            background-color: rgb(37, 168, 198);
+            width:4px;
+         }
+         QSlider::sub-page:vertical 
+        {
+            background-color: rgb(87, 97, 106);
+            width:4px;
+         }
+        QSlider::groove:vertical 
+        {
+            background:transparent;
+            width:10px;
+        }
+        QSlider::handle:vertical 
+        {
+             height: 13px;
+            width:13px;
+            border-image: url(:/images/ic_volume_thumb.png);
+             margin: -0 -4px; 
+         }
+
+QPushButton#btn
+    {
+    font-size:30px;
+    border: 30px solid #222222;
+    background-color: #222222;
+    padding: 4px;
+    min-width: 50px;
+    min-height: 50px;
+    color: white;
+    }
+
+    QPushButton:hover#btn {
+        background-color: #444444;
+        border-color: #444444;
+    }
+
+    QPushButton:pressed#btn {
+        background-color: #111111;
+        border-color: #111111;
+        color: yellow;
+    }
+    QPushButton:checked#btn {
+        background-color: #111111;
+        border-color: #111111;
+        color: yellow;
+    }
+    QPushButton:disabled#btn {
+        color: #333333;
+    }
+
+QPushButton#smallbtn
+    {
+    font-size:20px;
+    border: 20px solid #222222;
+    background-color: #222222;
+    padding: 4px;
+    min-width: 25px;
+    min-height: 25px;
+    color: white;
+    }
+
+    QPushButton:hover#smallbtn {
+        background-color: #444444;
+        border-color: #444444;
+    }
+
+    QPushButton:pressed#smallbtn {
+        background-color: #111111;
+        border-color: #111111;
+        color: yellow;
+    }
+    QPushButton:checked#smallbtn {
+        background-color: #111111;
+        border-color: #111111;
+        color: yellow;
+    }
+    QPushButton:disabled#smallbtn {
+        color: #333333;
+    }
+
+QLabel#volume {
+    padding-left: 5px;
+    padding-right: 2px;
+    color: white;
+    font-size:25px
+}
+
+QLabel#function {
+        font-size:40px;
+        color:#C0C0C0;
+        font-family:STKaiti;
+        font-weight:bold;
+    }
+
+    QLabel:hover#function {
+        color:white;
+    }
+
+QLabel#select {
+    font-size:40px;
+    color:gold;
+    font-family:STKaiti;
+    font-weight:bold;
+    text-decoration:underline;
+}
+
+QLabel#appname {
+    font-size:60px;
+    color:white;
+    font-family:STCaiyun;
+}
+
+QPushButton#set_btn{
+        border-image:url(./photos/set.png);
+        width:55px;
+        height:55px;
+    }
+    QPushButton:hover#set_btn{
+        border-image:url(./photos/set1.png);
+    }
+
+QWidget#bg_widget{
+    background-color: #111111;
+}
+
+
+QHeaderView::section {
+    height:25px;
+    color:white;
+    background:#505050;
+    border-left:0px solid gray;
+    border-right:1px solid gray;
+    border-top:0px solid gray;
+    border-bottom:0px solid gray;
+}
+
+QTreeView {
+    border:none;
+    background: #404040;
+    show-decoration-selected: 1;
+}
+QTreeView::item {
+    height: 25px;
+    border: none;
+    color: white;
+    background: transparent;
+}
+QTreeView::item:hover {
+    background: transparent;
+}
+QTreeView::item:selected{
+    background: #1E90FF;
+}
+QTreeView::branch {
+    background: transparent;
+}
+QTreeView::branch:hover {
+    background: transparent;
+}
+QTreeView::branch:selected {
+    background: #1E90FF;
+}
