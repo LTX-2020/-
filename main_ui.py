@@ -95,12 +95,9 @@ class Main_ui(QMainWindow):
         self.app2.setObjectName('function')
         self.app2.mousePressEvent = self.change_widget
         # 设置按钮
-        # set_map = QPixmap("set.png")
         set_btn = QPushButton(self)
         set_btn.setObjectName('set_btn')
-        # set_btn.mousePressEvent=self.change_widget
-        #set_btn.setPixmap(set_map)
-        # 水平布局1
+        # 工具栏水平布局
         hbox1 = QHBoxLayout()
         hbox1.setAlignment(Qt.AlignLeft)
         hbox1.addWidget(logo)
@@ -120,11 +117,11 @@ class Main_ui(QMainWindow):
         self.ins_monitor=Ins_monitor()
         self.setMenuWidget(mtitle)
         self.setCentralWidget(self.ins_monitor)
-        #放屏幕中间
-        # screen = QDesktopWidget().screenGeometry()
-        # size = self.geometry()
-        # self.move(int((screen.width() - size.width()) / 2),
-        #           int((screen.height() - size.height()) / 2))
+            #放屏幕中间
+            # screen = QDesktopWidget().screenGeometry()
+            # size = self.geometry()
+            # self.move(int((screen.width() - size.width()) / 2),
+            #           int((screen.height() - size.height()) / 2))
         # 显示窗口
         self.show()
 

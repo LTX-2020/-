@@ -3,12 +3,13 @@
 幻变声浪图形模块——乐器模拟widget
 author:杨博远
 """
+import os
 
 from PyQt5 import QtCore, QtMultimedia
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QLabel, QSlider, QHBoxLayout, QVBoxLayout, QPushButton, QGridLayout, \
-    QGraphicsOpacityEffect, QFrame, QTreeWidget
+    QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView
 
 
 class Ins_monitor(QWidget):
@@ -44,6 +45,21 @@ class Ins_monitor(QWidget):
         else:
             pass
 
+    def open_event(self):
+        directory = QFileDialog.getOpenFileName(self,'打开','.','*.mp3')
+        if(directory==('', '')):
+            return
+        new_treeitem=QTreeWidgetItem()
+        new_treeitem.setText(0,directory[0])
+        size=os.path.getsize(directory[0])/float(1024 * 1024)
+        new_treeitem.setText(1,'%.2f MB'%size)
+        self.tree.addTopLevelItem(new_treeitem)
+
+    def save_event(self):
+        directory = QFileDialog.getSaveFileName(self,'保存','.','*.mp3')
+        if (directory == ('', '')):
+            return
+
     def initUI(self):
         # 载入样式文件
         with open('style.qss', 'r') as f:
@@ -71,15 +87,16 @@ class Ins_monitor(QWidget):
         self.piano3.setPixmap(piano3map)
         self.piano3.setScaledContents(True)
 
+        #钢琴键盘布局
         hbox2 = QHBoxLayout()
         hbox2.addWidget(self.piano)
         hbox2.addWidget(self.piano2)
         hbox2.addWidget(self.piano3)
         hbox2.setSpacing(0)
-
         self.piano.mousePressEvent = self.piano_player
         self.piano2.mousePressEvent = self.piano_player
         self.piano3.mousePressEvent = self.piano_player
+
         # 音量滑动条
         self.slider1 = QSlider(Qt.Vertical)
         slider2 = QSlider(Qt.Vertical)
@@ -93,9 +110,11 @@ class Ins_monitor(QWidget):
         open_btn= QPushButton(QIcon('./photos/load.png'),'打开')
         open_btn.setIconSize(QSize(30, 30))
         open_btn.setObjectName('smallbtn')
+        open_btn.clicked.connect(self.open_event)
         save_btn= QPushButton(QIcon('./photos/save.png'),"保存")
         save_btn.setIconSize(QSize(30, 30))
         save_btn.setObjectName('smallbtn')
+        save_btn.clicked.connect(self.save_event)
         record_btn=QPushButton(QIcon('./photos/record.png'),"录制")
         record_btn.setIconSize(QSize(30, 30))
         record_btn.setObjectName('smallbtn')
@@ -118,6 +137,7 @@ class Ins_monitor(QWidget):
         ins4.setAutoExclusive(True)
         ins4.setObjectName('btn')
 
+        #volume_widget
         volume_widget=QWidget()
         volume_name=QLabel('音量调节')
         volume_name.setObjectName('volume')
@@ -130,6 +150,7 @@ class Ins_monitor(QWidget):
         volume_widget.setLayout(glayout1)
         volume_widget.setObjectName('bg_widget')
 
+        #ins_widget
         ins_widget=QWidget()
         ins_name=QLabel('乐器选择')
         ins_name.setObjectName('volume')
@@ -142,18 +163,18 @@ class Ins_monitor(QWidget):
         ins_widget.setLayout(glayout2)
         ins_widget.setObjectName('bg_widget')
 
-        file_widget=QWidget()
-        file_name=QLabel('文件操作')
-        file_name.setObjectName('volume')
-
         #文件树
         self.tree = QTreeWidget()
-        # 设置列数
-        self.tree.setColumnCount(2)
         # 设置树形控件头部的标题
         self.tree.setHeaderLabels(['文件名', '大小'])
+        self.tree.setRootIsDecorated(False)
+        # 宽度对内容变化
+        self.tree.header().setSectionResizeMode(QHeaderView.ResizeToContents)
 
-
+        #file_widget
+        file_widget = QWidget()
+        file_name = QLabel('文件操作')
+        file_name.setObjectName('volume')
         vbox=QVBoxLayout()
         vbox.addWidget(file_name)
         vbox.addWidget(open_btn)
@@ -162,14 +183,15 @@ class Ins_monitor(QWidget):
         file_widget.setLayout(vbox)
         file_widget.setObjectName('bg_widget')
 
-        #音量，文件操作，乐器选择框架
+        #音量，文件操作，乐器选择布局
         hbox = QHBoxLayout()
         hbox.addWidget(volume_widget)
-        hbox.addWidget(file_widget)
         hbox.addWidget(ins_widget)
+        hbox.addWidget(file_widget)
         hbox.addWidget(self.tree)
         hbox.addStretch(1)
 
+        #竖直布局
         vbox2 = QVBoxLayout()
         vbox2.addLayout(hbox)
         vbox2.addSpacing(20)

@@ -148,6 +148,7 @@ QHeaderView::section {
 QTreeView {
     border:none;
     background: #404040;
+    min-width:400px;
     show-decoration-selected: 1;
 }
 QTreeView::item {
