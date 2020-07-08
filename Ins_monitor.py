@@ -4,15 +4,21 @@
 author:杨博远
 """
 import os
-
 from PyQt5 import QtCore, QtMultimedia
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QLabel, QSlider, QHBoxLayout, QVBoxLayout, QPushButton, QGridLayout, \
-    QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView
+    QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView, QGroupBox
 
 
 class Ins_monitor(QWidget):
+
+    def playerstate(self,state,pos):
+        if(state==1):
+            self.piano2.setPixmap(self.pianomaplist[pos - 1])
+        elif(state==0):
+            self.piano2.setPixmap(self.piano2map)
+
 
     def __init__(self):
         super().__init__()
@@ -24,14 +30,17 @@ class Ins_monitor(QWidget):
             self.player.setVolume(self.slider1.value())
 
     def piano_player(self, event):
+        #钢琴弹奏模块，待优化
         gx=event.globalPos().x()-self.mapToGlobal(self.piano.pos()).x()+11
         x = event.pos().x()
         y = event.pos().y()
         t1=self.piano.pos().x()
         t2=self.piano2.pos().x()
         t3=self.piano3.pos().x()
+        #高音区域
         if gx>self.piano3.geometry().x():
             pass
+        #中音区域
         elif gx>self.piano2.geometry().x():
             relative_pos = x - self.piano.geometry().x()
             result = int(relative_pos / (self.piano.geometry().width() / 7) + 1.2)
@@ -39,9 +48,11 @@ class Ins_monitor(QWidget):
             content = QtMultimedia.QMediaContent(url)
             if not hasattr(self, 'player'):
                 self.player = QtMultimedia.QMediaPlayer()
+            self.player.stateChanged.connect(lambda: self.playerstate(self.player.state(), result))
             self.player.setMedia(content)
             self.player.setVolume(self.slider1.value())
             self.player.play()
+        #低音区域
         else:
             pass
 
@@ -72,18 +83,19 @@ class Ins_monitor(QWidget):
         self.setGraphicsEffect(op)
 
         # 钢琴按键
+        self.pianomaplist=[QPixmap("./photos/piano1.png"),QPixmap("./photos/piano2.png"),QPixmap("./photos/piano3.png"),QPixmap("./photos/piano4.png"),QPixmap("./photos/piano5.png"),QPixmap("./photos/piano6.png"),QPixmap("./photos/piano7.png")]
         self.piano = QLabel(self)
-        pianomap = QPixmap("./photos/piano1.png")
+        pianomap = QPixmap("./photos/piano.png")
         self.piano.setPixmap(pianomap)
         self.piano.setScaledContents(True)
 
         self.piano2 = QLabel(self)
-        piano2map = QPixmap("./photos/piano1.png")
-        self.piano2.setPixmap(piano2map)
+        self.piano2map = QPixmap("./photos/piano.png")
+        self.piano2.setPixmap(self.piano2map)
         self.piano2.setScaledContents(True)
 
         self.piano3 = QLabel(self)
-        piano3map = QPixmap("./photos/piano1.png")
+        piano3map = QPixmap("./photos/piano.png")
         self.piano3.setPixmap(piano3map)
         self.piano3.setScaledContents(True)
 
@@ -137,31 +149,23 @@ class Ins_monitor(QWidget):
         ins4.setAutoExclusive(True)
         ins4.setObjectName('btn')
 
-        #volume_widget
-        volume_widget=QWidget()
-        volume_name=QLabel('音量调节')
-        volume_name.setObjectName('volume')
+        #volume_groupbox
         glayout1 = QGridLayout()
-        glayout1.addWidget(volume_name, 0, 0)
-        glayout1.addWidget(self.slider1, 1, 0)
-        glayout1.addWidget(slider2, 1, 1)
-        glayout1.addWidget(self.volume1, 2, 0)
-        glayout1.addWidget(volume2, 2, 1)
-        volume_widget.setLayout(glayout1)
-        volume_widget.setObjectName('bg_widget')
+        glayout1.addWidget(self.slider1, 0, 0)
+        glayout1.addWidget(slider2, 0, 1)
+        glayout1.addWidget(self.volume1, 1, 0)
+        glayout1.addWidget(volume2, 1, 1)
+        volume_groupBox = QGroupBox("音量调节")
+        volume_groupBox.setLayout(glayout1)
 
-        #ins_widget
-        ins_widget=QWidget()
-        ins_name=QLabel('乐器选择')
-        ins_name.setObjectName('volume')
+        #ins_groupbox
         glayout2 = QGridLayout()
-        glayout2.addWidget(ins_name,0,0)
-        glayout2.addWidget(ins1, 1, 0)
-        glayout2.addWidget(ins2, 1, 1)
-        glayout2.addWidget(ins3, 2, 0)
-        glayout2.addWidget(ins4, 2, 1)
-        ins_widget.setLayout(glayout2)
-        ins_widget.setObjectName('bg_widget')
+        glayout2.addWidget(ins1, 0, 0)
+        glayout2.addWidget(ins2, 0, 1)
+        glayout2.addWidget(ins3, 1, 0)
+        glayout2.addWidget(ins4, 1, 1)
+        ins_groupBox = QGroupBox("乐器选择")
+        ins_groupBox.setLayout(glayout2)
 
         #文件树
         self.tree = QTreeWidget()
@@ -171,25 +175,24 @@ class Ins_monitor(QWidget):
         # 宽度对内容变化
         self.tree.header().setSectionResizeMode(QHeaderView.ResizeToContents)
 
-        #file_widget
-        file_widget = QWidget()
-        file_name = QLabel('文件操作')
-        file_name.setObjectName('volume')
+        #file_groupbox
         vbox=QVBoxLayout()
-        vbox.addWidget(file_name)
         vbox.addWidget(open_btn)
         vbox.addWidget(save_btn)
         vbox.addWidget(record_btn)
-        file_widget.setLayout(vbox)
-        file_widget.setObjectName('bg_widget')
+        hbox3=QHBoxLayout()
+        hbox3.addLayout(vbox)
+        hbox3.addWidget(self.tree)
+        file_groupBox = QGroupBox("文件操作")
+        file_groupBox.setLayout(hbox3)
 
         #音量，文件操作，乐器选择布局
         hbox = QHBoxLayout()
-        hbox.addWidget(volume_widget)
-        hbox.addWidget(ins_widget)
-        hbox.addWidget(file_widget)
-        hbox.addWidget(self.tree)
-        hbox.addStretch(1)
+        hbox.addWidget(volume_groupBox)
+        hbox.addWidget(ins_groupBox)
+        # hbox.addStretch(1)
+        hbox.addWidget(file_groupBox)
+
 
         #竖直布局
         vbox2 = QVBoxLayout()

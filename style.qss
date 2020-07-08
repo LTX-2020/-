@@ -35,8 +35,8 @@ QPushButton#btn
     border: 30px solid #222222;
     background-color: #222222;
     padding: 4px;
-    min-width: 50px;
-    min-height: 50px;
+    min-width: 40px;
+    min-height: 40px;
     color: white;
     }
 
@@ -130,10 +130,6 @@ QPushButton#set_btn{
         border-image:url(./photos/set1.png);
     }
 
-QWidget#bg_widget{
-    background-color: #111111;
-}
-
 
 QHeaderView::section {
     height:25px;
@@ -148,7 +144,7 @@ QHeaderView::section {
 QTreeView {
     border:none;
     background: #404040;
-    min-width:400px;
+    min-width:300px;
     show-decoration-selected: 1;
 }
 QTreeView::item {
@@ -171,4 +167,18 @@ QTreeView::branch:hover {
 }
 QTreeView::branch:selected {
     background: #1E90FF;
+}
+QGroupBox {
+border: 2px solid yellow;
+background-color: #111111;
+border-radius: 5px;
+margin-top: 1ex;
+font-family:仿宋;
+font-size: 20px;
+font-weight: bold;
+}
+QGroupBox::title {
+subcontrol-origin: margin;
+color:white;
+subcontrol-position: top left;
 }
