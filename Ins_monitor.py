@@ -9,8 +9,88 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QLabel, QSlider, QHBoxLayout, QVBoxLayout, QPushButton, QGridLayout, \
     QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView, QGroupBox
+import pyaudio
+import threading
+import wave
+import time
+from datetime import datetime
 
+class Recorder():
+    #录音类
+    def __init__(self, chunk=1024, channels=2, rate=64000):
+        self.CHUNK = chunk
+        self.FORMAT = pyaudio.paInt16
+        self.CHANNELS = channels
+        self.RATE = rate
+        self._running = True
+        self._frames = []
+    # 获取内录设备序号,在windows操作系统上测试通过，hostAPI = 0 表明是MME设备
+    def findInternalRecordingDevice(self, p):
+        # 要找查的设备名称中的关键字
+        target = '立体声混音'
+        # 逐一查找声音设备,记得启用立体声混音设备
+        for i in range(p.get_device_count()):
+            devInfo = p.get_device_info_by_index(i)
+            if devInfo['name'].find(target) >= 0 and devInfo['hostApi'] == 0:
+                # print('已找到内录设备,序号是 ',i)
+                return i
+        print('无法找到内录设备!')
+        return -1
 
+    # 开始录音，开启一个新线程进行录音操作
+    def start(self):
+        threading._start_new_thread(self.__record, ())
+
+    # 执行录音的线程函数
+    def __record(self):
+        self._running = True
+        self._frames = []
+
+        p = pyaudio.PyAudio()
+        # 查找内录设备
+        dev_idx = self.findInternalRecordingDevice(p)
+        if dev_idx < 0:
+            return
+        # 在打开输入流时指定输入设备
+        stream = p.open(input_device_index=dev_idx,
+                        format=self.FORMAT,
+                        channels=self.CHANNELS,
+                        rate=self.RATE,
+                        input=True,
+                        frames_per_buffer=self.CHUNK)
+        # 循环读取输入流
+        while (self._running):
+            data = stream.read(self.CHUNK)
+            self._frames.append(data)
+
+        # 停止读取输入流
+        stream.stop_stream()
+        # 关闭输入流
+        stream.close()
+        # 结束pyaudio
+        p.terminate()
+        return
+
+    # 停止录音
+    def stop(self):
+        self._running = False
+
+    # 保存到文件
+    def save(self, fileName):
+        # 创建pyAudio对象
+        p = pyaudio.PyAudio()
+        # 打开用于保存数据的文件
+        wf = wave.open(fileName, 'wb')
+        # 设置音频参数
+        wf.setnchannels(self.CHANNELS)
+        wf.setsampwidth(p.get_sample_size(self.FORMAT))
+        wf.setframerate(self.RATE)
+        # 写入数据
+        wf.writeframes(b''.join(self._frames))
+        # 关闭文件
+        wf.close()
+        # 结束pyaudio
+        p.terminate()
 class Ins_monitor(QWidget):
 
     def playerstate(self,state,pos):
@@ -127,9 +207,11 @@ class Ins_monitor(QWidget):
         save_btn.setIconSize(QSize(30, 30))
         save_btn.setObjectName('smallbtn')
         save_btn.clicked.connect(self.save_event)
-        record_btn=QPushButton(QIcon('./photos/record.png'),"录制")
-        record_btn.setIconSize(QSize(30, 30))
-        record_btn.setObjectName('smallbtn')
+        self.record_btn = QPushButton(QIcon('./photos/record.png'), "录制")
+        self.record_btn.setIconSize(QSize(30, 30))
+        self.record_btn.setObjectName('smallbtn')
+        self.record_btn.setCheckable(True)
+        self.record_btn.clicked.connect(self.record_event)
         # 乐器选择
         ins1 = QPushButton("钢琴")
         ins1.setCheckable(True)
@@ -179,7 +261,7 @@ class Ins_monitor(QWidget):
         vbox=QVBoxLayout()
         vbox.addWidget(open_btn)
         vbox.addWidget(save_btn)
-        vbox.addWidget(record_btn)
+        vbox.addWidget(self.record_btn)
         hbox3=QHBoxLayout()
         hbox3.addLayout(vbox)
         hbox3.addWidget(self.tree)
@@ -202,3 +284,27 @@ class Ins_monitor(QWidget):
         vbox2.setStretchFactor(hbox, 1)
         vbox2.setStretchFactor(hbox2, 1)
         self.setLayout(vbox2)
+
+    def record_job(self):
+        if not os.path.exists('records'):
+            os.makedirs('records')
+        rec = Recorder()
+        begin = 0
+        if 1:  # 开始录音的条件
+            begin = time.time()
+            rec.start()  # 开始
+            running = True
+            #print(1)
+            while running:  # 循环录音
+                if not self.record_btn.isChecked():  # 结束录音的条件
+                    running = False
+                    rec.stop()
+                    t = time.time() - begin
+                    #print('录音时间为%ds' % t)
+                    # 以当前时间为关键字保存wav文件
+                    rec.save("records/rec_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".wav")  # 保存文件
+
+    def record_event(self):
+        if self.record_btn.isChecked():
+          record_thread = threading.Thread(target=self.record_job)
+          record_thread.start()
