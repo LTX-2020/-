@@ -6,98 +6,25 @@ author:杨博远
 import os
 from PyQt5 import QtCore, QtMultimedia
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QLabel, QSlider, QHBoxLayout, QVBoxLayout, QPushButton, QGridLayout, \
-    QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView, QGroupBox
-import pyaudio
+    QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView, QGroupBox, QSizePolicy
+from Recorder import Recorder
 import threading
-import wave
 import time
 from datetime import datetime
 
-class Recorder():
-    #录音类
-    def __init__(self, chunk=1024, channels=2, rate=64000):
-        self.CHUNK = chunk
-        self.FORMAT = pyaudio.paInt16
-        self.CHANNELS = channels
-        self.RATE = rate
-        self._running = True
-        self._frames = []
-    # 获取内录设备序号,在windows操作系统上测试通过，hostAPI = 0 表明是MME设备
-    def findInternalRecordingDevice(self, p):
-        # 要找查的设备名称中的关键字
-        target = '立体声混音'
-        # 逐一查找声音设备,记得启用立体声混音设备
-        for i in range(p.get_device_count()):
-            devInfo = p.get_device_info_by_index(i)
-            if devInfo['name'].find(target) >= 0 and devInfo['hostApi'] == 0:
-                # print('已找到内录设备,序号是 ',i)
-                return i
-        print('无法找到内录设备!')
-        return -1
 
-    # 开始录音，开启一个新线程进行录音操作
-    def start(self):
-        threading._start_new_thread(self.__record, ())
-
-    # 执行录音的线程函数
-    def __record(self):
-        self._running = True
-        self._frames = []
-
-        p = pyaudio.PyAudio()
-        # 查找内录设备
-        dev_idx = self.findInternalRecordingDevice(p)
-        if dev_idx < 0:
-            return
-        # 在打开输入流时指定输入设备
-        stream = p.open(input_device_index=dev_idx,
-                        format=self.FORMAT,
-                        channels=self.CHANNELS,
-                        rate=self.RATE,
-                        input=True,
-                        frames_per_buffer=self.CHUNK)
-        # 循环读取输入流
-        while (self._running):
-            data = stream.read(self.CHUNK)
-            self._frames.append(data)
-
-        # 停止读取输入流
-        stream.stop_stream()
-        # 关闭输入流
-        stream.close()
-        # 结束pyaudio
-        p.terminate()
-        return
-
-    # 停止录音
-    def stop(self):
-        self._running = False
-
-    # 保存到文件
-    def save(self, fileName):
-        # 创建pyAudio对象
-        p = pyaudio.PyAudio()
-        # 打开用于保存数据的文件
-        wf = wave.open(fileName, 'wb')
-        # 设置音频参数
-        wf.setnchannels(self.CHANNELS)
-        wf.setsampwidth(p.get_sample_size(self.FORMAT))
-        wf.setframerate(self.RATE)
-        # 写入数据
-        wf.writeframes(b''.join(self._frames))
-        # 关闭文件
-        wf.close()
-        # 结束pyaudio
-        p.terminate()
 class Ins_monitor(QWidget):
 
-    def playerstate(self,state,pos):
-        if(state==1):
-            self.piano2.setPixmap(self.pianomaplist[pos - 1])
-        elif(state==0):
-            self.piano2.setPixmap(self.piano2map)
+    # def playerstate(self,tar):
+    #     state=tar.state()
+    #     if(state==1):
+    #         pass
+    #         # self.piano2.setPixmap(self.pianomaplist[pos - 1])
+    #     elif(state==0):
+    #         del tar
+    #         # self.piano2.setPixmap(self.piano2map)
 
 
     def __init__(self):
@@ -109,32 +36,23 @@ class Ins_monitor(QWidget):
         if hasattr(self, 'player'):
             self.player.setVolume(self.slider1.value())
 
-    def piano_player(self, event):
-        #钢琴弹奏模块，待优化
-        gx=event.globalPos().x()-self.mapToGlobal(self.piano.pos()).x()+11
-        x = event.pos().x()
-        y = event.pos().y()
-        t1=self.piano.pos().x()
-        t2=self.piano2.pos().x()
-        t3=self.piano3.pos().x()
-        #高音区域
-        if gx>self.piano3.geometry().x():
-            pass
-        #中音区域
-        elif gx>self.piano2.geometry().x():
-            relative_pos = x - self.piano.geometry().x()
-            result = int(relative_pos / (self.piano.geometry().width() / 7) + 1.2)
-            url = QtCore.QUrl.fromLocalFile('./audio/%s.mp3' % result)
-            content = QtMultimedia.QMediaContent(url)
-            if not hasattr(self, 'player'):
-                self.player = QtMultimedia.QMediaPlayer()
-            self.player.stateChanged.connect(lambda: self.playerstate(self.player.state(), result))
-            self.player.setMedia(content)
-            self.player.setVolume(self.slider1.value())
-            self.player.play()
-        #低音区域
-        else:
-            pass
+    def play(self,tar):
+        player = QtMultimedia.QMediaPlayer()
+        #强行延长作用域？？？
+        self.playerlist.append(player)
+        # print(len(self.playerlist))
+        # player.stateChanged.connect(lambda: self.playerstate(player))
+        url = QtCore.QUrl.fromLocalFile('./audio/%s.mp3' % tar)
+        content = QtMultimedia.QMediaContent(url)
+        player.setMedia(content)
+        player.setVolume(self.slider1.value())
+        player.play()
+
+    def piano_player(self):
+        self.playerlist = []
+        sender=self.sender()
+        threading.Thread(target=self.play, args=(sender.text(),)).start()
+
 
     def open_event(self):
         directory = QFileDialog.getOpenFileName(self,'打开','.','*.mp3')
@@ -163,31 +81,105 @@ class Ins_monitor(QWidget):
         self.setGraphicsEffect(op)
 
         # 钢琴按键
-        self.pianomaplist=[QPixmap("./photos/piano1.png"),QPixmap("./photos/piano2.png"),QPixmap("./photos/piano3.png"),QPixmap("./photos/piano4.png"),QPixmap("./photos/piano5.png"),QPixmap("./photos/piano6.png"),QPixmap("./photos/piano7.png")]
-        self.piano = QLabel(self)
-        pianomap = QPixmap("./photos/piano.png")
-        self.piano.setPixmap(pianomap)
-        self.piano.setScaledContents(True)
+        self.pianol1 = QPushButton('l1')
+        # self.pianol1.sizePolicy().setVerticalPolicy(QSizePolicy.MinimumExpanding)
+        self.pianol1.setObjectName('piano1')
+        self.pianol1.clicked.connect(self.piano_player)
+        self.pianol2 = QPushButton('l2')
+        self.pianol2.setObjectName('piano2')
+        self.pianol2.clicked.connect(self.piano_player)
+        self.pianol3 = QPushButton('l3')
+        self.pianol3.setObjectName('piano3')
+        self.pianol3.clicked.connect(self.piano_player)
+        self.pianol4 = QPushButton('l4')
+        self.pianol4.setObjectName('piano1')
+        self.pianol4.clicked.connect(self.piano_player)
+        self.pianol5 = QPushButton('l5')
+        self.pianol5.setObjectName('piano2')
+        self.pianol5.clicked.connect(self.piano_player)
+        self.pianol6 = QPushButton('l6')
+        self.pianol6.setObjectName('piano2')
+        self.pianol6.clicked.connect(self.piano_player)
+        self.pianol7 = QPushButton('l7')
+        self.pianol7.setObjectName('piano3')
+        self.pianol7.clicked.connect(self.piano_player)
 
-        self.piano2 = QLabel(self)
-        self.piano2map = QPixmap("./photos/piano.png")
-        self.piano2.setPixmap(self.piano2map)
-        self.piano2.setScaledContents(True)
+        self.pianom1 = QPushButton('m1')
+        self.pianom1.setShortcut('1')
+        self.pianom1.setObjectName('piano1')
+        self.pianom1.clicked.connect(self.piano_player)
+        self.pianom2 = QPushButton('m2')
+        self.pianom2.setShortcut('2')
+        self.pianom2.setObjectName('piano2')
+        self.pianom2.clicked.connect(self.piano_player)
+        self.pianom3 = QPushButton('m3')
+        self.pianom3.setShortcut('3')
+        self.pianom3.setObjectName('piano3')
+        self.pianom3.clicked.connect(self.piano_player)
+        self.pianom4 = QPushButton('m4')
+        self.pianom4.setShortcut('4')
+        self.pianom4.setObjectName('piano1')
+        self.pianom4.clicked.connect(self.piano_player)
+        self.pianom5 = QPushButton('m5')
+        self.pianom5.setShortcut('5')
+        self.pianom5.setObjectName('piano2')
+        self.pianom5.clicked.connect(self.piano_player)
+        self.pianom6 = QPushButton('m6')
+        self.pianom6.setShortcut('6')
+        self.pianom6.setObjectName('piano2')
+        self.pianom6.clicked.connect(self.piano_player)
+        self.pianom7 = QPushButton('m7')
+        self.pianom7.setShortcut('7')
+        self.pianom7.setObjectName('piano3')
+        self.pianom7.clicked.connect(self.piano_player)
 
-        self.piano3 = QLabel(self)
-        piano3map = QPixmap("./photos/piano.png")
-        self.piano3.setPixmap(piano3map)
-        self.piano3.setScaledContents(True)
+        self.pianoh1 = QPushButton('h1')
+        self.pianoh1.setObjectName('piano1')
+        self.pianoh1.clicked.connect(self.piano_player)
+        self.pianoh2 = QPushButton('h2')
+        self.pianoh2.setObjectName('piano2')
+        self.pianoh2.clicked.connect(self.piano_player)
+        self.pianoh3 = QPushButton('h3')
+        self.pianoh3.setObjectName('piano3')
+        self.pianoh3.clicked.connect(self.piano_player)
+        self.pianoh4 = QPushButton('h4')
+        self.pianoh4.setObjectName('piano1')
+        self.pianoh4.clicked.connect(self.piano_player)
+        self.pianoh5 = QPushButton('h5')
+        self.pianoh5.setObjectName('piano2')
+        self.pianoh5.clicked.connect(self.piano_player)
+        self.pianoh6 = QPushButton('h6')
+        self.pianoh6.setObjectName('piano2')
+        self.pianoh6.clicked.connect(self.piano_player)
+        self.pianoh7 = QPushButton('h7')
+        self.pianoh7.setObjectName('piano3')
+        self.pianoh7.clicked.connect(self.piano_player)
 
-        #钢琴键盘布局
         hbox2 = QHBoxLayout()
-        hbox2.addWidget(self.piano)
-        hbox2.addWidget(self.piano2)
-        hbox2.addWidget(self.piano3)
+        hbox2.addWidget(self.pianol1)
+        hbox2.addWidget(self.pianol2)
+        hbox2.addWidget(self.pianol3)
+        hbox2.addWidget(self.pianol4)
+        hbox2.addWidget(self.pianol5)
+        hbox2.addWidget(self.pianol6)
+        hbox2.addWidget(self.pianol7)
+        hbox2.addSpacing(10)
+        hbox2.addWidget(self.pianom1)
+        hbox2.addWidget(self.pianom2)
+        hbox2.addWidget(self.pianom3)
+        hbox2.addWidget(self.pianom4)
+        hbox2.addWidget(self.pianom5)
+        hbox2.addWidget(self.pianom6)
+        hbox2.addWidget(self.pianom7)
+        hbox2.addSpacing(10)
+        hbox2.addWidget(self.pianoh1)
+        hbox2.addWidget(self.pianoh2)
+        hbox2.addWidget(self.pianoh3)
+        hbox2.addWidget(self.pianoh4)
+        hbox2.addWidget(self.pianoh5)
+        hbox2.addWidget(self.pianoh6)
+        hbox2.addWidget(self.pianoh7)
         hbox2.setSpacing(0)
-        self.piano.mousePressEvent = self.piano_player
-        self.piano2.mousePressEvent = self.piano_player
-        self.piano3.mousePressEvent = self.piano_player
 
         # 音量滑动条
         self.slider1 = QSlider(Qt.Vertical)
@@ -279,10 +271,11 @@ class Ins_monitor(QWidget):
         #竖直布局
         vbox2 = QVBoxLayout()
         vbox2.addLayout(hbox)
-        vbox2.addSpacing(20)
+        vbox2.addStretch()
         vbox2.addLayout(hbox2)
-        vbox2.setStretchFactor(hbox, 1)
-        vbox2.setStretchFactor(hbox2, 1)
+        vbox2.addStretch()
+        # vbox2.setStretchFactor(hbox, 1)
+        # vbox2.setStretchFactor(hbox2, 1)
         self.setLayout(vbox2)
 
     def record_job(self):

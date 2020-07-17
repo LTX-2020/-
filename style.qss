@@ -1,36 +1,30 @@
-QSlider
-        {
-            background-color: rgb(25, 38, 58);
-            min-height:100px;
-            min-width:15px;
-            max-width:15px;
-            border:15px solid rgb(25, 38, 58);
-        }
-         QSlider::add-page:vertical
-         {     
-            background-color: rgb(37, 168, 198);
-            width:4px;
-         }
-         QSlider::sub-page:vertical 
-        {
-            background-color: rgb(87, 97, 106);
-            width:4px;
-         }
-        QSlider::groove:vertical 
-        {
-            background:transparent;
-            width:10px;
-        }
-        QSlider::handle:vertical 
-        {
-             height: 13px;
-            width:13px;
-            border-image: url(:/images/ic_volume_thumb.png);
-             margin: -0 -4px; 
-         }
+QSlider{
+    background-color: rgb(25, 38, 58);
+    min-height:100px;
+    min-width:15px;
+    max-width:15px;
+    border:15px solid rgb(25, 38, 58);
+}
+QSlider::add-page:vertical{
+    background-color: rgb(37, 168, 198);
+    width:4px;
+}
+QSlider::sub-page:vertical {
+    background-color: rgb(87, 97, 106);
+    width:4px;
+}
+QSlider::groove:vertical{
+    background:transparent;
+    width:10px;
+}
+QSlider::handle:vertical{
+    height: 13px;
+    width:13px;
+    border-image: url(:/images/ic_volume_thumb.png);
+    margin: -0 -4px;
+}
 
-QPushButton#btn
-    {
+QPushButton#btn{
     font-size:30px;
     border: 30px solid #222222;
     background-color: #222222;
@@ -38,56 +32,49 @@ QPushButton#btn
     min-width: 40px;
     min-height: 40px;
     color: white;
-    }
+}
+QPushButton:hover#btn {
+    background-color: #444444;
+    border-color: #444444;
+}
+QPushButton:pressed#btn {
+    background-color: #111111;
+    border-color: #111111;
+    color: yellow;
+}
+QPushButton:checked#btn {
+    background-color: #111111;
+    border-color: #111111;
+    color: yellow;
+}
+QPushButton:disabled#btn {
+    color: #333333;
+}
 
-    QPushButton:hover#btn {
-        background-color: #444444;
-        border-color: #444444;
-    }
-
-    QPushButton:pressed#btn {
-        background-color: #111111;
-        border-color: #111111;
-        color: yellow;
-    }
-    QPushButton:checked#btn {
-        background-color: #111111;
-        border-color: #111111;
-        color: yellow;
-    }
-    QPushButton:disabled#btn {
-        color: #333333;
-    }
-
-QPushButton#smallbtn
-    {
+QPushButton#smallbtn{
     font-size:20px;
     border: 20px solid #222222;
     background-color: #222222;
     padding: 4px;
-    min-width: 25px;
-    min-height: 25px;
     color: white;
-    }
-
-    QPushButton:hover#smallbtn {
-        background-color: #444444;
-        border-color: #444444;
-    }
-
-    QPushButton:pressed#smallbtn {
-        background-color: #111111;
-        border-color: #111111;
-        color: yellow;
-    }
-    QPushButton:checked#smallbtn {
-        background-color: #111111;
-        border-color: #111111;
-        color: yellow;
-    }
-    QPushButton:disabled#smallbtn {
-        color: #333333;
-    }
+}
+QPushButton:hover#smallbtn {
+    background-color: #444444;
+    border-color: #444444;
+}
+QPushButton:pressed#smallbtn {
+    background-color: #111111;
+    border-color: #111111;
+    color: yellow;
+}
+QPushButton:checked#smallbtn {
+    background-color: #111111;
+    border-color: #111111;
+    color: yellow;
+}
+QPushButton:disabled#smallbtn {
+    color: #333333;
+}
 
 QLabel#volume {
     padding-left: 5px;
@@ -97,15 +84,14 @@ QLabel#volume {
 }
 
 QLabel#function {
-        font-size:40px;
-        color:#C0C0C0;
-        font-family:STKaiti;
-        font-weight:bold;
-    }
-
-    QLabel:hover#function {
-        color:white;
-    }
+    font-size:40px;
+    color:#C0C0C0;
+    font-family:STKaiti;
+    font-weight:bold;
+}
+QLabel:hover#function {
+    color:white;
+}
 
 QLabel#select {
     font-size:40px;
@@ -122,14 +108,13 @@ QLabel#appname {
 }
 
 QPushButton#set_btn{
-        border-image:url(./photos/set.png);
-        width:55px;
-        height:55px;
-    }
-    QPushButton:hover#set_btn{
-        border-image:url(./photos/set1.png);
-    }
-
+    border-image:url(./photos/set.png);
+    width:55px;
+    height:55px;
+}
+QPushButton:hover#set_btn{
+    border-image:url(./photos/set1.png);
+}
 
 QHeaderView::section {
     height:25px;
@@ -144,7 +129,7 @@ QHeaderView::section {
 QTreeView {
     border:none;
     background: #404040;
-    min-width:300px;
+    min-width:50px;
     show-decoration-selected: 1;
 }
 QTreeView::item {
@@ -169,16 +154,46 @@ QTreeView::branch:selected {
     background: #1E90FF;
 }
 QGroupBox {
-border: 2px solid yellow;
-background-color: #111111;
-border-radius: 5px;
-margin-top: 1ex;
-font-family:仿宋;
-font-size: 20px;
-font-weight: bold;
+    border: 2px solid yellow;
+    background-color: #111111;
+    border-radius: 5px;
+    margin-top: 1ex;
+    font-family:仿宋;
+    font-size: 20px;
+    font-weight: bold;
 }
 QGroupBox::title {
-subcontrol-origin: margin;
-color:white;
-subcontrol-position: top left;
+    subcontrol-origin: margin;
+    color:white;
+    subcontrol-position: top left;
+}
+
+QPushButton#piano1{
+    color:white;
+    border-image:url(./photos/p1.png);
+    min-width:64px;
+    min-height:300px;
+}
+QPushButton:pressed#piano1{
+    border-image:url(./photos/p1c.png);
+}
+
+QPushButton#piano2{
+    color:white;
+    border-image:url(./photos/p2.png);
+    min-width:64px;
+    min-height:300px;
+}
+QPushButton:pressed#piano2{
+    border-image:url(./photos/p2c.png);
+}
+
+QPushButton#piano3{
+    color:white;
+    border-image:url(./photos/p3.png);
+    min-width:64px;
+    min-height:300px;
+}
+QPushButton:pressed#piano3{
+    border-image:url(./photos/p3c.png);
 }

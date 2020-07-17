@@ -2,6 +2,10 @@
 """
 幻变声浪图形模块
 author:杨博远
+
+当前进度：
+乐器模拟(实现中)
+乐器转换(?)
 """
 
 import sys
@@ -9,7 +13,7 @@ from Ins_monitor import *
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QMainWindow, QApplication, QHBoxLayout, QWidget, QLabel
+from PyQt5.QtWidgets import QMainWindow, QApplication, QHBoxLayout, QWidget, QLabel, QDesktopWidget
 
 
 class Main_ui(QMainWindow):
@@ -38,18 +42,6 @@ class Main_ui(QMainWindow):
             self.setStyleSheet(self.qssstyle)
         # 状态栏
         self.statusBar().showMessage('ready')
-            # 创建一个菜单栏
-            # menubar = self.menuBar()
-            # menubar.setStyleSheet("font-size:20px")
-            # # 添加菜单
-            # new_action = QAction("新建", self)
-            # save_action = QAction("保存", self)
-            # open_action = QAction("打开", self)
-            # fileMenu = menubar.addMenu("文件")
-            # fileMenu.addAction(open_action)
-            # fileMenu.addSeparator()
-            # fileMenu.addAction(new_action)
-            # fileMenu.addAction(save_action)
         # 设置窗口的位置和大小
         self.resize(1300,700)
         # 设置标题栏
@@ -63,19 +55,7 @@ class Main_ui(QMainWindow):
         palette = QtGui.QPalette()
         palette.setBrush(QtGui.QPalette.Background, QtGui.QBrush(bg))
         self.setPalette(palette)
-            # # 设置背景颜色为奶奶灰
-            # palette1 = QtGui.QPalette()
-            # palette1.setColor(palette1.Background, QtGui.QColor(205, 205, 205))
-            # self.setPalette(palette1)
-            # 想法1：工具栏实现乐器选择
-            # 设置工具栏
-            # toolbar = self.addToolBar('乐器选择')
-            # ins1 = QAction("乐器1",self)
-            # ins1.triggered.connect(QApplication.quit)
-            # toolbar.addAction(ins1)
-            # ins2 = QAction("乐器2", self)
-            # ins2.triggered.connect(QApplication.quit)
-            # toolbar.addAction(ins2)
+
         
         # 自定义菜单栏
         # logo图标
@@ -117,11 +97,6 @@ class Main_ui(QMainWindow):
         self.ins_monitor=Ins_monitor()
         self.setMenuWidget(mtitle)
         self.setCentralWidget(self.ins_monitor)
-            #放屏幕中间
-            # screen = QDesktopWidget().screenGeometry()
-            # size = self.geometry()
-            # self.move(int((screen.width() - size.width()) / 2),
-            #           int((screen.height() - size.height()) / 2))
         # 显示窗口
         self.show()
 
