@@ -17,18 +17,16 @@ from datetime import datetime
 
 class Ins_monitor(QWidget):
 
-    # def playerstate(self,tar):
-    #     state=tar.state()
-    #     if(state==1):
-    #         pass
-    #         # self.piano2.setPixmap(self.pianomaplist[pos - 1])
-    #     elif(state==0):
-    #         del tar
-    #         # self.piano2.setPixmap(self.piano2map)
+    def playerstate(self,tar):
+        #尝试解决内存泄漏(不理想)
+        state=tar.state()
+        if(state==0):
+            self.playerlist.remove(tar)
 
 
     def __init__(self):
         super().__init__()
+        self.playerlist=[]
         self.initUI()  # 界面绘制交给InitUi方法
 
     def volume_control(self):
@@ -36,22 +34,20 @@ class Ins_monitor(QWidget):
         if hasattr(self, 'player'):
             self.player.setVolume(self.slider1.value())
 
-    def play(self,tar):
-        player = QtMultimedia.QMediaPlayer()
-        #强行延长作用域？？？
-        self.playerlist.append(player)
-        # print(len(self.playerlist))
-        # player.stateChanged.connect(lambda: self.playerstate(player))
-        url = QtCore.QUrl.fromLocalFile('./audio/%s.mp3' % tar)
+
+    def piano_player(self):
+        sender=self.sender()
+        # threading.Thread(target=self.play, args=(sender.text(),)).start()
+        self.playerlist.append(QtMultimedia.QMediaPlayer())
+        player = self.playerlist[len(self.playerlist) - 1]
+        # 强行延长作用域？？？
+        print(len(self.playerlist))
+        player.stateChanged.connect(lambda: self.playerstate(player))
+        url = QtCore.QUrl.fromLocalFile('./audio/%s.mp3' % sender.text())
         content = QtMultimedia.QMediaContent(url)
         player.setMedia(content)
         player.setVolume(self.slider1.value())
         player.play()
-
-    def piano_player(self):
-        self.playerlist = []
-        sender=self.sender()
-        threading.Thread(target=self.play, args=(sender.text(),)).start()
 
 
     def open_event(self):
