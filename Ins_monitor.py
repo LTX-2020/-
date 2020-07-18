@@ -41,7 +41,7 @@ class Ins_monitor(QWidget):
         self.playerlist.append(QtMultimedia.QMediaPlayer())
         player = self.playerlist[len(self.playerlist) - 1]
         # 强行延长作用域？？？
-        print(len(self.playerlist))
+        # print(len(self.playerlist))
         player.stateChanged.connect(lambda: self.playerstate(player))
         url = QtCore.QUrl.fromLocalFile('./audio/%s.mp3' % sender.text())
         content = QtMultimedia.QMediaContent(url)
