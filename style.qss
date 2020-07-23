@@ -51,6 +51,19 @@ QPushButton:disabled#btn {
     color: #333333;
 }
 
+QPushButton#choicebtn{
+    font-size:20px;
+    border: 10px solid #222222;
+    background-color: #222222;
+    padding: 4px;
+    color: white;
+}
+QPushButton:checked#choicebtn {
+    background-color: #111111;
+    border-color: #111111;
+    color: yellow;
+}
+
 QPushButton#smallbtn{
     font-size:20px;
     border: 20px solid #222222;
