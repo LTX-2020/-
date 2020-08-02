@@ -4,11 +4,13 @@
 author:杨博远
 """
 import os
+from ctypes import windll
+
 from PyQt5 import QtCore, QtMultimedia
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QCursor
 from PyQt5.QtWidgets import QWidget, QLabel, QSlider, QHBoxLayout, QVBoxLayout, QPushButton, QGridLayout, \
-    QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView, QGroupBox, QSizePolicy
+    QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView, QGroupBox, QSizePolicy, QRadioButton
 from Recorder import Recorder
 import threading
 import time
@@ -18,7 +20,7 @@ from datetime import datetime
 class Ins_monitor(QWidget):
 
     def playerstate(self,tar):
-        #尝试释放内存(不理想)
+        #释放内存
         state=tar.state()
         if(state==0):
             self.playerlist.remove(tar)
@@ -29,6 +31,16 @@ class Ins_monitor(QWidget):
         super().__init__()
         self.playerlist=[]
         self.initUI()  # 界面绘制交给InitUi方法
+
+    def get_color(self,x, y):
+        gdi32 = windll.gdi32
+        user32 = windll.user32
+        hdc = user32.GetDC(None)  # 获取颜色值
+        pixel = gdi32.GetPixel(hdc, x, y)  # 提取RGB值
+        r = pixel & 0x0000ff
+        g = (pixel & 0x00ff00) >> 8
+        b = pixel >> 16
+        return [r, g, b]
 
     def volume_control(self):
         self.volume1.setText(str(self.slider1.value()))
@@ -46,9 +58,35 @@ class Ins_monitor(QWidget):
         player = self.playerlist[len(self.playerlist) - 1]
         player.stateChanged.connect(lambda: self.playerstate(player))
         if self.ins1.isChecked():
-            url = QtCore.QUrl.fromLocalFile('./audio/piano/%s.mp3' % sender.text())
+            ins='piano'
         else:
             pass
+        if self.choicebtn.isChecked():
+            point = QCursor.pos()
+            r, g, b = self.get_color(point.x(), point.y())
+            if r < 80 and g < 80 and b < 80:
+                if sender.objectName() == 'piano2':
+                    if point.x() - self.mapToGlobal(sender.pos()).x() >= sender.width() / 2:
+                        # sender.setStyleSheet('border-image:url(./photos/p2.5.png);')
+                        t=sender.text()[0]+"#"+sender.text()[1]
+                        url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins,t))
+                    else:
+                        if sender.text()[0]=="a":
+                            t ='g' + "#" + sender.text()[1]
+                        else:
+                            t = chr(ord(sender.text()[0])-1) + "#" + sender.text()[1]
+                        url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins,t))
+                elif sender.objectName() == 'piano1':
+                    # sender.setStyleSheet('border-image:url(./photos/p1.5.png);')
+                    t = sender.text()[0] + "#" + sender.text()[1]
+                    url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins,t))
+                else:
+                    t = chr(ord(sender.text()[0]) - 1) + "#" + sender.text()[1]
+                    url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins, t))
+            else:
+                url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins,sender.text()))
+        else:
+            url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins, sender.text()))
         content = QtMultimedia.QMediaContent(url)
         player.setMedia(content)
         player.setVolume(self.slider1.value())
@@ -69,7 +107,6 @@ class Ins_monitor(QWidget):
         directory = QFileDialog.getSaveFileName(self,'保存','.','*.mp3')
         if (directory == ('', '')):
             return
-
     def initUI(self):
         # 载入样式文件
         with open('style.qss', 'r') as f:
@@ -80,9 +117,7 @@ class Ins_monitor(QWidget):
         op = QGraphicsOpacityEffect()
         op.setOpacity(0.7)
         self.setGraphicsEffect(op)
-
         # 钢琴按键
-        QtMultimedia.QMediaPlayer()
         self.pianol1 = QPushButton('c4')
         self.pianol1.setObjectName('piano1')
         self.pianol1.setShortcut('1')
@@ -219,6 +254,10 @@ class Ins_monitor(QWidget):
         self.record_btn.setObjectName('smallbtn')
         self.record_btn.setCheckable(True)
         self.record_btn.clicked.connect(self.record_event)
+        # 演奏模式选择按钮
+        self.choicebtn =  QPushButton("开启黑键")
+        self.choicebtn.setCheckable(True)
+        self.choicebtn.setObjectName('choicebtn')
         # 乐器选择
         self.ins1 = QPushButton("钢琴")
         self.ins1.setCheckable(True)
@@ -249,10 +288,11 @@ class Ins_monitor(QWidget):
 
         #ins_groupbox
         glayout2 = QGridLayout()
-        glayout2.addWidget(self.ins1, 0, 0)
-        glayout2.addWidget(self.ins2, 0, 1)
-        glayout2.addWidget(self.ins3, 1, 0)
-        glayout2.addWidget(self.ins4, 1, 1)
+        glayout2.addWidget(self.choicebtn, 0, 0,1,2)
+        glayout2.addWidget(self.ins1, 1, 0)
+        glayout2.addWidget(self.ins2, 1, 1)
+        glayout2.addWidget(self.ins3, 2, 0)
+        glayout2.addWidget(self.ins4, 2, 1)
         ins_groupBox = QGroupBox("乐器选择")
         ins_groupBox.setLayout(glayout2)
 
