@@ -183,17 +183,25 @@ QGroupBox::title {
 
 QPushButton#piano1{
     color:white;
-    border-image:url(./photos/p1.png);
+    border-image:url(./photos/p1t.png);
     min-width:64px;
     min-height:300px;
 }
 QPushButton:pressed#piano1{
     border-image:url(./photos/p1c.png);
 }
-
+QPushButton#pianob{
+    color:black;
+    border-image:url(./photos/b.png);
+min-width:44px;
+min-height:238px;
+}
+QPushButton:pressed#pianob{
+    border-image:url(./photos/bc.png);
+}
 QPushButton#piano2{
     color:white;
-    border-image:url(./photos/p2.png);
+    border-image:url(./photos/p2t.png);
     min-width:64px;
     min-height:300px;
 }
@@ -203,7 +211,7 @@ QPushButton:pressed#piano2{
 
 QPushButton#piano3{
     color:white;
-    border-image:url(./photos/p3.png);
+    border-image:url(./photos/p3t.png);
     min-width:64px;
     min-height:300px;
 }

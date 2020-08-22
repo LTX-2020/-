@@ -3,18 +3,17 @@
 幻变声浪图形模块——乐器模拟widget
 author:杨博远
 """
+from datetime import datetime
 import os
-from ctypes import windll
+import time
 
 from PyQt5 import QtCore, QtMultimedia
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QIcon, QCursor
+from PyQt5.QtGui import QIcon, QCursor, QPixmap
 from PyQt5.QtWidgets import QWidget, QLabel, QSlider, QHBoxLayout, QVBoxLayout, QPushButton, QGridLayout, \
     QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView, QGroupBox, QSizePolicy, QRadioButton
 from Recorder import Recorder
 import threading
-import time
-from datetime import datetime
 
 
 class Ins_monitor(QWidget):
@@ -32,15 +31,6 @@ class Ins_monitor(QWidget):
         self.playerlist=[]
         self.initUI()  # 界面绘制交给InitUi方法
 
-    def get_color(self,x, y):
-        gdi32 = windll.gdi32
-        user32 = windll.user32
-        hdc = user32.GetDC(None)  # 获取颜色值
-        pixel = gdi32.GetPixel(hdc, x, y)  # 提取RGB值
-        r = pixel & 0x0000ff
-        g = (pixel & 0x00ff00) >> 8
-        b = pixel >> 16
-        return [r, g, b]
 
     def volume_control(self):
         self.volume1.setText(str(self.slider1.value()))
@@ -61,32 +51,7 @@ class Ins_monitor(QWidget):
             ins='piano'
         else:
             pass
-        if self.choicebtn.isChecked():
-            point = QCursor.pos()
-            r, g, b = self.get_color(point.x(), point.y())
-            if r < 80 and g < 80 and b < 80:
-                if sender.objectName() == 'piano2':
-                    if point.x() - self.mapToGlobal(sender.pos()).x() >= sender.width() / 2:
-                        # sender.setStyleSheet('border-image:url(./photos/p2.5.png);')
-                        t=sender.text()[0]+"#"+sender.text()[1]
-                        url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins,t))
-                    else:
-                        if sender.text()[0]=="a":
-                            t ='g' + "#" + sender.text()[1]
-                        else:
-                            t = chr(ord(sender.text()[0])-1) + "#" + sender.text()[1]
-                        url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins,t))
-                elif sender.objectName() == 'piano1':
-                    # sender.setStyleSheet('border-image:url(./photos/p1.5.png);')
-                    t = sender.text()[0] + "#" + sender.text()[1]
-                    url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins,t))
-                else:
-                    t = chr(ord(sender.text()[0]) - 1) + "#" + sender.text()[1]
-                    url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins, t))
-            else:
-                url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins,sender.text()))
-        else:
-            url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins, sender.text()))
+        url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins, sender.text()))
         content = QtMultimedia.QMediaContent(url)
         player.setMedia(content)
         player.setVolume(self.slider1.value())
@@ -107,6 +72,7 @@ class Ins_monitor(QWidget):
         directory = QFileDialog.getSaveFileName(self,'保存','.','*.mp3')
         if (directory == ('', '')):
             return
+
     def initUI(self):
         # 载入样式文件
         with open('style.qss', 'r') as f:
@@ -118,116 +84,280 @@ class Ins_monitor(QWidget):
         op.setOpacity(0.7)
         self.setGraphicsEffect(op)
         # 钢琴按键
+        pixmap=QPixmap('./photos/p1tm.png')
+        pixmapb = QPixmap('./photos/b.png')
+        pixmap2 = QPixmap('./photos/p2tm.png')
+        pixmap3 = QPixmap('./photos/p3tm.png')
+
         self.pianol1 = QPushButton('c4')
+        self.pianol1.setMask(pixmap.mask())
         self.pianol1.setObjectName('piano1')
         self.pianol1.setShortcut('1')
         self.pianol1.clicked.connect(self.piano_player)
+
+        self.pianolb1 = QPushButton('c#4')
+        self.pianolb1.setMask(pixmapb.mask())
+        self.pianolb1.setObjectName('pianob')
+        self.pianolb1.clicked.connect(self.piano_player)
+
         self.pianol2 = QPushButton('d4')
         self.pianol2.setObjectName('piano2')
+        self.pianol2.setMask(pixmap2.mask())
         self.pianol2.setShortcut('2')
         self.pianol2.clicked.connect(self.piano_player)
+
+        self.pianolb2 = QPushButton('d#4')
+        self.pianolb2.setMask(pixmapb.mask())
+        self.pianolb2.setObjectName('pianob')
+        self.pianolb2.clicked.connect(self.piano_player)
+
         self.pianol3 = QPushButton('e4')
+        self.pianol3.setMask(pixmap3.mask())
         self.pianol3.setObjectName('piano3')
         self.pianol3.setShortcut('3')
         self.pianol3.clicked.connect(self.piano_player)
+
         self.pianol4 = QPushButton('f4')
+        self.pianol4.setMask(pixmap.mask())
         self.pianol4.setObjectName('piano1')
         self.pianol4.setShortcut('4')
         self.pianol4.clicked.connect(self.piano_player)
+
+        self.pianolb3 = QPushButton('f#4')
+        self.pianolb3.setMask(pixmapb.mask())
+        self.pianolb3.setObjectName('pianob')
+        self.pianolb3.clicked.connect(self.piano_player)
+
         self.pianol5 = QPushButton('g4')
+        self.pianol5.setMask(pixmap2.mask())
         self.pianol5.setObjectName('piano2')
         self.pianol5.setShortcut('5')
         self.pianol5.clicked.connect(self.piano_player)
+
+        self.pianolb4 = QPushButton('g#4')
+        self.pianolb4.setMask(pixmapb.mask())
+        self.pianolb4.setObjectName('pianob')
+        self.pianolb4.clicked.connect(self.piano_player)
+
         self.pianol6 = QPushButton('a4')
+        self.pianol6.setMask(pixmap2.mask())
         self.pianol6.setObjectName('piano2')
         self.pianol6.setShortcut('6')
         self.pianol6.clicked.connect(self.piano_player)
+
+        self.pianolb5 = QPushButton('a#4')
+        self.pianolb5.setMask(pixmapb.mask())
+        self.pianolb5.setObjectName('pianob')
+        self.pianolb5.clicked.connect(self.piano_player)
+
         self.pianol7 = QPushButton('b4')
+        self.pianol7.setMask(pixmap3.mask())
         self.pianol7.setObjectName('piano3')
         self.pianol7.setShortcut('7')
         self.pianol7.clicked.connect(self.piano_player)
 
         self.pianom1 = QPushButton('c5')
+        self.pianom1.setMask(pixmap.mask())
         self.pianom1.setShortcut('q')
         self.pianom1.setObjectName('piano1')
         self.pianom1.clicked.connect(self.piano_player)
+
+        self.pianomb1 = QPushButton('c#5')
+        self.pianomb1.setMask(pixmapb.mask())
+        self.pianomb1.setObjectName('pianob')
+        self.pianomb1.clicked.connect(self.piano_player)
+
         self.pianom2 = QPushButton('d5')
+        self.pianom2.setMask(pixmap2.mask())
         self.pianom2.setShortcut('w')
         self.pianom2.setObjectName('piano2')
         self.pianom2.clicked.connect(self.piano_player)
+
+        self.pianomb2 = QPushButton('d#5')
+        self.pianomb2.setMask(pixmapb.mask())
+        self.pianomb2.setObjectName('pianob')
+        self.pianomb2.clicked.connect(self.piano_player)
+
         self.pianom3 = QPushButton('e5')
+        self.pianom3.setMask(pixmap3.mask())
         self.pianom3.setShortcut('e')
         self.pianom3.setObjectName('piano3')
         self.pianom3.clicked.connect(self.piano_player)
+
         self.pianom4 = QPushButton('f5')
+        self.pianom4.setMask(pixmap.mask())
         self.pianom4.setShortcut('r')
         self.pianom4.setObjectName('piano1')
         self.pianom4.clicked.connect(self.piano_player)
+
+        self.pianomb3 = QPushButton('f#5')
+        self.pianomb3.setMask(pixmapb.mask())
+        self.pianomb3.setObjectName('pianob')
+        self.pianomb3.clicked.connect(self.piano_player)
+
         self.pianom5 = QPushButton('g5')
+        self.pianom5.setMask(pixmap2.mask())
         self.pianom5.setShortcut('t')
         self.pianom5.setObjectName('piano2')
         self.pianom5.clicked.connect(self.piano_player)
+
+        self.pianomb4 = QPushButton('g#5')
+        self.pianomb4.setMask(pixmapb.mask())
+        self.pianomb4.setObjectName('pianob')
+        self.pianomb4.clicked.connect(self.piano_player)
+
         self.pianom6 = QPushButton('a5')
+        self.pianom6.setMask(pixmap2.mask())
         self.pianom6.setShortcut('y')
         self.pianom6.setObjectName('piano2')
         self.pianom6.clicked.connect(self.piano_player)
+
+        self.pianomb5 = QPushButton('a#5')
+        self.pianomb5.setMask(pixmapb.mask())
+        self.pianomb5.setObjectName('pianob')
+        self.pianomb5.clicked.connect(self.piano_player)
+
         self.pianom7 = QPushButton('b5')
+        self.pianom7.setMask(pixmap3.mask())
         self.pianom7.setShortcut('u')
         self.pianom7.setObjectName('piano3')
         self.pianom7.clicked.connect(self.piano_player)
 
         self.pianoh1 = QPushButton('c6')
+        self.pianoh1.setMask(pixmap.mask())
         self.pianoh1.setObjectName('piano1')
         self.pianoh1.setShortcut('a')
         self.pianoh1.clicked.connect(self.piano_player)
+
+        self.pianohb1 = QPushButton('c#6')
+        self.pianohb1.setMask(pixmapb.mask())
+        self.pianohb1.setObjectName('pianob')
+        self.pianohb1.clicked.connect(self.piano_player)
+
         self.pianoh2 = QPushButton('d6')
+        self.pianoh2.setMask(pixmap2.mask())
         self.pianoh2.setObjectName('piano2')
         self.pianoh2.setShortcut('s')
         self.pianoh2.clicked.connect(self.piano_player)
+
+        self.pianohb2 = QPushButton('d#6')
+        self.pianohb2.setMask(pixmapb.mask())
+        self.pianohb2.setObjectName('pianob')
+        self.pianohb2.clicked.connect(self.piano_player)
+
         self.pianoh3 = QPushButton('e6')
+        self.pianoh3.setMask(pixmap3.mask())
         self.pianoh3.setObjectName('piano3')
         self.pianoh3.setShortcut('d')
         self.pianoh3.clicked.connect(self.piano_player)
+
         self.pianoh4 = QPushButton('f6')
+        self.pianoh4.setMask(pixmap.mask())
         self.pianoh4.setObjectName('piano1')
         self.pianoh4.setShortcut('f')
         self.pianoh4.clicked.connect(self.piano_player)
+
+        self.pianohb3 = QPushButton('f#6')
+        self.pianohb3.setMask(pixmapb.mask())
+        self.pianohb3.setObjectName('pianob')
+        self.pianohb3.clicked.connect(self.piano_player)
+
         self.pianoh5 = QPushButton('g6')
+        self.pianoh5.setMask(pixmap2.mask())
         self.pianoh5.setObjectName('piano2')
         self.pianoh5.setShortcut('g')
         self.pianoh5.clicked.connect(self.piano_player)
+
+        self.pianohb4 = QPushButton('g#6')
+        self.pianohb4.setMask(pixmapb.mask())
+        self.pianohb4.setObjectName('pianob')
+        self.pianohb4.clicked.connect(self.piano_player)
+
         self.pianoh6 = QPushButton('a6')
+        self.pianoh6.setMask(pixmap2.mask())
         self.pianoh6.setObjectName('piano2')
         self.pianoh6.setShortcut('h')
         self.pianoh6.clicked.connect(self.piano_player)
+
+        self.pianohb5 = QPushButton('a#6')
+        self.pianohb5.setMask(pixmapb.mask())
+        self.pianohb5.setObjectName('pianob')
+        self.pianohb5.clicked.connect(self.piano_player)
+
         self.pianoh7 = QPushButton('b6')
+        self.pianoh7.setMask(pixmap3.mask())
         self.pianoh7.setObjectName('piano3')
         self.pianoh7.setShortcut('j')
         self.pianoh7.clicked.connect(self.piano_player)
 
         hbox2 = QHBoxLayout()
         hbox2.addWidget(self.pianol1)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianolb1,0,Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianol2)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianolb2,0,Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianol3)
         hbox2.addWidget(self.pianol4)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianolb3, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianol5)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianolb4, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianol6)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianolb5, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianol7)
-        hbox2.addSpacing(10)
+        hbox2.addStretch()
         hbox2.addWidget(self.pianom1)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianomb1, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianom2)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianomb2, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianom3)
         hbox2.addWidget(self.pianom4)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianomb3, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianom5)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianomb4, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianom6)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianomb5, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianom7)
-        hbox2.addSpacing(10)
+        hbox2.addStretch()
         hbox2.addWidget(self.pianoh1)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianohb1, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianoh2)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianohb2, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianoh3)
         hbox2.addWidget(self.pianoh4)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianohb3, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianoh5)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianohb4, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianoh6)
+        hbox2.addSpacing(-24)
+        hbox2.addWidget(self.pianohb5, 0, Qt.AlignTop)
+        hbox2.addSpacing(-24)
         hbox2.addWidget(self.pianoh7)
         hbox2.setSpacing(0)
 
@@ -255,9 +385,9 @@ class Ins_monitor(QWidget):
         self.record_btn.setCheckable(True)
         self.record_btn.clicked.connect(self.record_event)
         # 演奏模式选择按钮
-        self.choicebtn =  QPushButton("开启黑键")
-        self.choicebtn.setCheckable(True)
-        self.choicebtn.setObjectName('choicebtn')
+        # self.choicebtn =  QPushButton("开启黑键")
+        # self.choicebtn.setCheckable(True)
+        # self.choicebtn.setObjectName('choicebtn')
         # 乐器选择
         self.ins1 = QPushButton("钢琴")
         self.ins1.setCheckable(True)
@@ -288,7 +418,7 @@ class Ins_monitor(QWidget):
 
         #ins_groupbox
         glayout2 = QGridLayout()
-        glayout2.addWidget(self.choicebtn, 0, 0,1,2)
+        # glayout2.addWidget(self.choicebtn, 0, 0,1,2)
         glayout2.addWidget(self.ins1, 1, 0)
         glayout2.addWidget(self.ins2, 1, 1)
         glayout2.addWidget(self.ins3, 2, 0)
