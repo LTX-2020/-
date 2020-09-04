@@ -3,17 +3,17 @@
 幻变声浪图形模块——乐器模拟widget
 author:杨博远
 """
+import threading
 from datetime import datetime
 import os
 import time
-
+from Music_player import Music_player
 from PyQt5 import QtCore, QtMultimedia
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QIcon, QCursor, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QWidget, QLabel, QSlider, QHBoxLayout, QVBoxLayout, QPushButton, QGridLayout, \
-    QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView, QGroupBox, QSizePolicy, QRadioButton
+    QGraphicsOpacityEffect, QTreeWidget, QFileDialog, QTreeWidgetItem, QHeaderView, QGroupBox
 from Recorder import Recorder
-import threading
 
 
 class Ins_monitor(QWidget):
@@ -57,34 +57,9 @@ class Ins_monitor(QWidget):
         player.setVolume(self.slider1.value())
         player.play()
 
-
-    def open_event(self):
-        directory = QFileDialog.getOpenFileName(self,'打开','.','*.mp3')
-        if(directory==('', '')):
-            return
-        new_treeitem=QTreeWidgetItem()
-        new_treeitem.setText(0,directory[0])
-        size=os.path.getsize(directory[0])/float(1024 * 1024)
-        new_treeitem.setText(1,'%.2f MB'%size)
-        self.tree.addTopLevelItem(new_treeitem)
-
-    def save_event(self):
-        directory = QFileDialog.getSaveFileName(self,'保存','.','*.mp3')
-        if (directory == ('', '')):
-            return
-
-    def initUI(self):
-        # 载入样式文件
-        with open('style.qss', 'r') as f:
-            qssstyle = f.read()
-            self.setStyleSheet(qssstyle)
-        # 内容布局
-        # 设置透明度的值，0.0到1.0，最小值0是透明，1是不透明
-        op = QGraphicsOpacityEffect()
-        op.setOpacity(0.7)
-        self.setGraphicsEffect(op)
+    def init_piano(self):
         # 钢琴按键
-        pixmap=QPixmap('./photos/p1tm.png')
+        pixmap = QPixmap('./photos/p1tm.png')
         pixmapb = QPixmap('./photos/b.png')
         pixmap2 = QPixmap('./photos/p2tm.png')
         pixmap3 = QPixmap('./photos/p3tm.png')
@@ -290,76 +265,111 @@ class Ins_monitor(QWidget):
         self.pianoh7.setShortcut('j')
         self.pianoh7.clicked.connect(self.piano_player)
 
-        hbox2 = QHBoxLayout()
-        hbox2.addWidget(self.pianol1)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianolb1,0,Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianol2)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianolb2,0,Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianol3)
-        hbox2.addWidget(self.pianol4)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianolb3, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianol5)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianolb4, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianol6)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianolb5, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianol7)
-        hbox2.addStretch()
-        hbox2.addWidget(self.pianom1)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianomb1, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianom2)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianomb2, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianom3)
-        hbox2.addWidget(self.pianom4)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianomb3, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianom5)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianomb4, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianom6)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianomb5, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianom7)
-        hbox2.addStretch()
-        hbox2.addWidget(self.pianoh1)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianohb1, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianoh2)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianohb2, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianoh3)
-        hbox2.addWidget(self.pianoh4)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianohb3, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianoh5)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianohb4, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianoh6)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianohb5, 0, Qt.AlignTop)
-        hbox2.addSpacing(-24)
-        hbox2.addWidget(self.pianoh7)
-        hbox2.setSpacing(0)
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.pianol1)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianolb1, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianol2)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianolb2, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianol3)
+        hbox.addWidget(self.pianol4)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianolb3, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianol5)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianolb4, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianol6)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianolb5, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianol7)
+        hbox.addStretch()
+        hbox.addWidget(self.pianom1)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianomb1, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianom2)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianomb2, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianom3)
+        hbox.addWidget(self.pianom4)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianomb3, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianom5)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianomb4, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianom6)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianomb5, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianom7)
+        hbox.addStretch()
+        hbox.addWidget(self.pianoh1)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianohb1, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianoh2)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianohb2, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianoh3)
+        hbox.addWidget(self.pianoh4)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianohb3, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianoh5)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianohb4, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianoh6)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianohb5, 0, Qt.AlignTop)
+        hbox.addSpacing(-24)
+        hbox.addWidget(self.pianoh7)
+        hbox.setSpacing(0)
+        return hbox
+
+    def open_event(self):
+        directory = QFileDialog.getOpenFileName(self,'打开','./records','*.wav;;*.mp3;;*')
+        if(directory==('', '')):
+            return
+        new_treeitem=QTreeWidgetItem()
+        new_treeitem.setText(0,directory[0])
+        size=os.path.getsize(directory[0])/float(1024 * 1024)
+        new_treeitem.setText(1,'%.2f MB'%size)
+        self.tree.addTopLevelItem(new_treeitem)
+        # self.mplayer.playlist.addMedia(QtMultimedia.QMediaContent(QtCore.QUrl(directory[0])))
+        # if self.mplayer.music_player.playlist()!=self.mplayer.playlist:
+        #     self.mplayer.music_player.setPlaylist(self.mplayer.playlist)
+    # def save_event(self):
+    #     directory = QFileDialog.getSaveFileName(self,'保存','.','*.wav;;*.mp3')
+    #     if (directory == ('', '')):
+    #         return
+
+    def tree_itemdoubleclicked(self,item):
+        url = QtCore.QUrl.fromLocalFile(item.text(0))
+        content = QtMultimedia.QMediaContent(url)
+        self.mplayer.music_player.setMedia(content)
+        self.mplayer.reset()
+
+    def initUI(self):
+        # 载入样式文件
+        with open('style.qss', 'r') as f:
+            qssstyle = f.read()
+            self.setStyleSheet(qssstyle)
+        # 内容布局
+        # 设置透明度的值，0.0到1.0，最小值0是透明，1是不透明
+        op = QGraphicsOpacityEffect()
+        op.setOpacity(0.7)
+        self.setGraphicsEffect(op)
 
         # 音量滑动条
         self.slider1 = QSlider(Qt.Vertical)
@@ -375,10 +385,10 @@ class Ins_monitor(QWidget):
         open_btn.setIconSize(QSize(30, 30))
         open_btn.setObjectName('smallbtn')
         open_btn.clicked.connect(self.open_event)
-        save_btn= QPushButton(QIcon('./photos/save.png'),"保存")
-        save_btn.setIconSize(QSize(30, 30))
-        save_btn.setObjectName('smallbtn')
-        save_btn.clicked.connect(self.save_event)
+        # save_btn= QPushButton(QIcon('./photos/save.png'),"保存")
+        # save_btn.setIconSize(QSize(30, 30))
+        # save_btn.setObjectName('smallbtn')
+        # save_btn.clicked.connect(self.save_event)
         self.record_btn = QPushButton(QIcon('./photos/record.png'), "录制")
         self.record_btn.setIconSize(QSize(30, 30))
         self.record_btn.setObjectName('smallbtn')
@@ -433,17 +443,26 @@ class Ins_monitor(QWidget):
         self.tree.setRootIsDecorated(False)
         # 宽度对内容变化
         self.tree.header().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.tree.itemDoubleClicked.connect(self.tree_itemdoubleclicked)
+        
+        #播放器
+        self.mplayer=Music_player()
+
 
         #file_groupbox
         vbox=QVBoxLayout()
         vbox.addWidget(open_btn)
-        vbox.addWidget(save_btn)
+        # vbox.addWidget(save_btn)
         vbox.addWidget(self.record_btn)
         hbox3=QHBoxLayout()
         hbox3.addLayout(vbox)
         hbox3.addWidget(self.tree)
+        vbox2=QVBoxLayout()
+        vbox2.addWidget(self.mplayer)
+        vbox2.addLayout(hbox3)
         file_groupBox = QGroupBox("文件操作")
-        file_groupBox.setLayout(hbox3)
+        file_groupBox.setLayout(vbox2)
+
 
         #音量，文件操作，乐器选择布局
         hbox = QHBoxLayout()
@@ -451,16 +470,17 @@ class Ins_monitor(QWidget):
         hbox.addWidget(ins_groupBox)
         # hbox.addStretch(1)
         hbox.addWidget(file_groupBox)
+        # hbox.addLayout(player)
 
 
         #竖直布局
         vbox2 = QVBoxLayout()
         vbox2.addLayout(hbox)
         vbox2.addStretch()
-        vbox2.addLayout(hbox2)
+        vbox2.addLayout(self.init_piano())
         vbox2.addStretch()
         # vbox2.setStretchFactor(hbox, 1)
-        # vbox2.setStretchFactor(hbox2, 1)
+        # vbox2.setStretchFactor(hbox, 1)
         self.setLayout(vbox2)
 
     def record_job(self):

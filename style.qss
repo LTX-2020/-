@@ -17,16 +17,16 @@ QSlider::groove:vertical{
     background:transparent;
     width:10px;
 }
-QSlider::handle:vertical{
+/*QSlider::handle:vertical{
     height: 13px;
     width:13px;
     border-image: url(:/images/ic_volume_thumb.png);
     margin: -0 -4px;
-}
+}*/
 
 QPushButton#btn{
     font-size:30px;
-    border: 30px solid #222222;
+    border: 50px solid #222222;
     background-color: #222222;
     padding: 4px;
     min-width: 40px;
@@ -66,7 +66,7 @@ QPushButton:checked#choicebtn {
 
 QPushButton#smallbtn{
     font-size:20px;
-    border: 20px solid #222222;
+    border: 35px solid #222222;
     background-color: #222222;
     padding: 4px;
     color: white;
@@ -96,23 +96,28 @@ QLabel#volume {
     font-size:25px
 }
 
-QLabel#function {
+QLabel#player_label {
+    padding-left: 5px;
+    padding-right: 2px;
+    color: white;
+    font-size:25px
+}
+
+QPushButton#app {
+    border:none;
     font-size:40px;
     color:#C0C0C0;
     font-family:STKaiti;
     font-weight:bold;
 }
-QLabel:hover#function {
+QPushButton:hover#app {
     color:white;
 }
-
-QLabel#select {
-    font-size:40px;
+QPushButton:checked#app {
     color:gold;
-    font-family:STKaiti;
-    font-weight:bold;
     text-decoration:underline;
 }
+
 
 QLabel#appname {
     font-size:60px;
@@ -170,7 +175,7 @@ QGroupBox {
     border: 2px solid yellow;
     background-color: #111111;
     border-radius: 5px;
-    margin-top: 1ex;
+    margin-top: 12px;
     font-family:仿宋;
     font-size: 20px;
     font-weight: bold;
@@ -217,4 +222,34 @@ QPushButton#piano3{
 }
 QPushButton:pressed#piano3{
     border-image:url(./photos/p3c.png);
+}
+
+QPushButton#player_play{
+    color:white;
+    border-image:url(./photos/play.png);
+    min-width:55px;
+    min-height:55px;
+}
+QPushButton:checked#player_play{
+    border-image:url(./photos/pause.png);
+}
+
+/*
+QPushButton#player_next{
+    color:white;
+    border-image:url(./photos/next.png);
+    min-width:55px;
+    min-height:55px;
+}
+*/
+
+QProgressBar{
+border: 2px solid grey;
+background-color: black;
+border-radius: 5px;
+}
+
+QProgressBar::chunk{
+background-color: #FF66CC;
+width: 20px;
 }

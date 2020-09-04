@@ -23,17 +23,13 @@ class Main_ui(QMainWindow):
 
         self.initUI()  # 界面绘制交给InitUi方法
 
-    def change_widget(self,event):
-        if(event.globalPos().x()>=self.mapToGlobal(self.app2.pos()).x()):
-            self.app2.setObjectName('select')
-            self.app1.setObjectName('function')
-            self.setStyleSheet(self.qssstyle)
+    def change_widget(self):
+        sender=self.sender()
+        if(sender.text()=='界面2'):
+            pass
         else:
             if self.centralWidget()!=self.ins_monitor:
                 self.setCentralWidget(self.ins_monitor)
-            self.app2.setObjectName('function')
-            self.app1.setObjectName('select')
-            self.setStyleSheet(self.qssstyle)
 
     def initUI(self):
         # 载入样式文件
@@ -43,7 +39,7 @@ class Main_ui(QMainWindow):
         # 状态栏
         self.statusBar().showMessage('ready')
         # 设置窗口的位置和大小
-        self.resize(1300,700)
+        self.resize(1400,700)
         # 设置标题栏
         self.setWindowTitle('幻变声浪')
         # self.setWindowFlags(Qt.WindowCloseButtonHint)
@@ -68,12 +64,17 @@ class Main_ui(QMainWindow):
         appnamemap=appnamemap.scaled(QSize(200,50))
         appname.setPixmap(appnamemap)
         # 功能
-        self.app1 = QLabel("演奏")
-        self.app1.setObjectName('select')
-        self.app1.mousePressEvent=self.change_widget
-        self.app2 = QLabel("界面2")
-        self.app2.setObjectName('function')
-        self.app2.mousePressEvent = self.change_widget
+        self.app1 = QPushButton("演奏")
+        self.app1.setObjectName('app')
+        self.app1.setCheckable(True)
+        self.app1.setChecked(True)
+        self.app1.setAutoExclusive(True)
+        self.app1.clicked.connect(self.change_widget)
+        self.app2 = QPushButton("界面2")
+        self.app2.setObjectName('app')
+        self.app2.setCheckable(True)
+        self.app2.setAutoExclusive(True)
+        self.app2.clicked.connect(self.change_widget)
         # 设置按钮
         set_btn = QPushButton(self)
         set_btn.setObjectName('set_btn')
@@ -99,8 +100,6 @@ class Main_ui(QMainWindow):
         self.setCentralWidget(self.ins_monitor)
         # 显示窗口
         self.show()
-
-
 
 
 if __name__ == '__main__':
