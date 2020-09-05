@@ -1,6 +1,10 @@
 #将录音录入后，对比以前的乐器四特征（声道数一般固定为1  量化位数 采样频率 采样点数 ）
 import wave
 import json
+
+import numpy as np
+
+
 def Read_WAV(wav_path):
     """
     这是读取wav文件的函数
