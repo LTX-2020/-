@@ -49,8 +49,10 @@ class Ins_monitor(QWidget):
         player.stateChanged.connect(lambda: self.playerstate(player))
         if self.ins1.isChecked():
             ins='piano'
+        elif self.ins2.isChecked():
+            ins='bass'
         else:
-            pass
+            return
         url = QtCore.QUrl.fromLocalFile('./audio/{0}/{1}.mp3'.format(ins, sender.text()))
         content = QtMultimedia.QMediaContent(url)
         player.setMedia(content)
@@ -404,7 +406,7 @@ class Ins_monitor(QWidget):
         self.ins1.setChecked(True)
         self.ins1.setAutoExclusive(True)
         self.ins1.setObjectName('btn')
-        self.ins2 = QPushButton("ins2")
+        self.ins2 = QPushButton("bass")
         self.ins2.setCheckable(True)
         self.ins2.setAutoExclusive(True)
         self.ins2.setObjectName('btn')
