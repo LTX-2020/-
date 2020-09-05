@@ -30,7 +30,7 @@ def Read_WAV(wav_path):
             "WaveData":list(Wav_Data)}
     return json.dumps(dict)
 # 开始对音频文件进行数据化
-def result():
+def result(wav_paths):
     for wav_path in wav_paths:
         wav_json = Read_WAV(wav_path)
         print(wav_json)
